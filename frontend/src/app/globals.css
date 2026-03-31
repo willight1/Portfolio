@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  font-family: 'Pretendard', 'SUIT', 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.01em;
+}

@@ -1,0 +1,14 @@
+# 1) .gitignore 확인/추가
+cat > .gitignore << 'EOF'
+backend/.venv/
+frontend/node_modules/
+frontend/.next/
+backend/db.sqlite3
+backend/media/
+backend/.env
+frontend/.env.local
+.env
+*.pyc
+**/__pycache__/
+.DS_Store
+EOF
