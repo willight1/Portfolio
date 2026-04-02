@@ -23,13 +23,6 @@ export default function PostDetailPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const me = await api.me();
-        if (!me.is_authenticated) {
-          alert('회원가입 이후 상세내용 확인 가능합니다.');
-          router.push('/');
-          return;
-        }
-
         const detail = await api.getPostBySlug(slug);
         setPost(detail);
       } catch {

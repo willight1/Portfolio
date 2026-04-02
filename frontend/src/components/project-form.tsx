@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+
+import { makeSafeUploadFile } from '@/lib/file';
 import { Project } from '@/types/project';
 
 type Props = {
@@ -33,7 +35,7 @@ export function ProjectForm({ initial = null, onSubmit, submitLabel }: Props) {
       formData.append('demo_url', demoUrl);
       formData.append('is_featured', String(isFeatured));
       if (thumbnail) {
-        formData.append('thumbnail', thumbnail);
+        formData.append('thumbnail', makeSafeUploadFile(thumbnail));
       }
       await onSubmit(formData);
       if (!initial) {

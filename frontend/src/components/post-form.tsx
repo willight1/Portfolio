@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { makeSafeUploadFile } from '@/lib/file';
 import { Post } from '@/types/project';
 
 type Props = {
@@ -30,7 +31,7 @@ export function PostForm({ initial = null, onSubmit, submitLabel }: Props) {
       formData.append('content', content);
       formData.append('tags', tags);
       if (thumbnail) {
-        formData.append('thumbnail', thumbnail);
+        formData.append('thumbnail', makeSafeUploadFile(thumbnail));
       }
       await onSubmit(formData);
       if (!initial) {

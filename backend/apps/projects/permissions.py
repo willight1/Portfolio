@@ -27,7 +27,7 @@ class IsAdminReadLoginRetrieve(BasePermission):
 
 class IsAuthorOrStaffOrReadOnly(BasePermission):
     """
-    - 읽기: 모두 허용
+    - 목록/상세 읽기: 모두 허용
     - 생성: 로그인 사용자 허용
     - 수정/삭제: 작성자 본인 또는 staff 허용
     """
@@ -37,7 +37,7 @@ class IsAuthorOrStaffOrReadOnly(BasePermission):
         if action == 'list':
             return True
         if action == 'retrieve':
-            return request.user and request.user.is_authenticated
+            return True
         if request.method in SAFE_METHODS:
             return True
         if request.method == 'POST':

@@ -1,5 +1,16 @@
+from urllib.parse import quote, urlsplit, urlunsplit
+
 from rest_framework import serializers
 from .models import Comment, CommentLike, Post, PostLike, Project
+
+
+def to_safe_absolute_url(request, raw_url: str) -> str:
+    split = urlsplit(raw_url)
+    encoded_path = quote(split.path)
+    encoded_url = urlunsplit((split.scheme, split.netloc, encoded_path, split.query, split.fragment))
+    if split.scheme and split.netloc:
+        return encoded_url
+    return request.build_absolute_uri(encoded_url)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -29,7 +40,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     def get_thumbnail_url(self, obj):
         request = self.context.get('request')
         if obj.thumbnail and request:
-            return request.build_absolute_uri(obj.thumbnail.url)
+            return to_safe_absolute_url(request, obj.thumbnail.url)
         return None
 
     def get_tech_stack_list(self, obj):
@@ -67,7 +78,7 @@ class PostSerializer(serializers.ModelSerializer):
     def get_thumbnail_url(self, obj):
         request = self.context.get('request')
         if obj.thumbnail and request:
-            return request.build_absolute_uri(obj.thumbnail.url)
+            return to_safe_absolute_url(request, obj.thumbnail.url)
         return None
 
     def get_tags_list(self, obj):
