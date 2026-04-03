@@ -2,9 +2,6 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-
-import { api } from '@/lib/api';
 import { Project } from '@/types/project';
 
 type Props = {
@@ -12,31 +9,13 @@ type Props = {
 };
 
 export function ProjectCard({ project }: Props) {
-  const router = useRouter();
-
   const imageSrc =
     project.thumbnail_url ||
     'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=1200&q=80';
 
-  const onClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    try {
-      const me = await api.me();
-      if (!me.is_authenticated) {
-        alert('회원가입 이후 상세내용 확인 가능합니다.');
-        router.push('/');
-        return;
-      }
-      router.push(`/projects/${project.slug}`);
-    } catch {
-      alert('회원가입 이후 상세내용 확인 가능합니다.');
-      router.push('/');
-    }
-  };
-
   return (
     <article className="group overflow-hidden rounded-2xl border border-zinc-200 bg-white transition duration-300 hover:-translate-y-1.5 hover:border-zinc-300 hover:shadow-[0_22px_42px_-24px_rgba(0,0,0,0.35)] dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:shadow-[0_26px_46px_-24px_rgba(0,0,0,0.6)]">
-      <Link href={`/projects/${project.slug}`} onClick={onClick} className="block">
+      <Link href={`/projects/${project.slug}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-zinc-100 dark:bg-zinc-800">
           {project.is_featured && (
             <span className="absolute left-3 top-3 z-10 rounded-full bg-black/75 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white dark:bg-white/85 dark:text-zinc-900">

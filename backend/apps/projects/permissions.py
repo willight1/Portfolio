@@ -12,7 +12,7 @@ class IsAdminReadLoginRetrieve(BasePermission):
     """
     Project 권한:
     - 목록(list): 모두 허용
-    - 상세(retrieve): 로그인 사용자만
+    - 상세(retrieve): 모두 허용
     - 생성/수정/삭제: staff만
     """
 
@@ -21,7 +21,7 @@ class IsAdminReadLoginRetrieve(BasePermission):
         if action == 'list':
             return True
         if action == 'retrieve':
-            return request.user and request.user.is_authenticated
+            return True
         return request.user and request.user.is_authenticated and request.user.is_staff
 
 

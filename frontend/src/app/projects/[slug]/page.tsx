@@ -20,13 +20,6 @@ export default function ProjectDetailPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const me = await api.me();
-        if (!me.is_authenticated) {
-          alert('회원가입 이후 상세내용 확인 가능합니다.');
-          router.push('/');
-          return;
-        }
-
         const [detail, list] = await Promise.all([api.getProjectBySlug(slug), api.getProjects()]);
         setProject(detail);
         setProjects(list);
