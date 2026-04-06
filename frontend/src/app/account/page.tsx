@@ -1,6 +1,8 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
+
+import { MyChatRooms } from '@/components/my-chat-rooms';
 import { api } from '@/lib/api';
 
 export default function AccountPage() {
@@ -68,6 +70,8 @@ export default function AccountPage() {
       </div>
 
       {message && <p className="rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">{message}</p>}
+
+      <MyChatRooms />
 
       <form onSubmit={onChangePassword} className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
         <h2 className="text-lg font-semibold">비밀번호 변경</h2>
