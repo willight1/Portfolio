@@ -8,23 +8,28 @@ import { api } from '@/lib/api';
 type Props = {
   postId: number;
   postSlug: string;
-  createdBy: number | null;
+  canManage?: boolean;
 };
 
-export function PostOwnerActions({ postId, postSlug, createdBy }: Props) {
-  const [canManage, setCanManage] = useState(false);
+export function PostOwnerActions({ postId, postSlug, canManage: initialCanManage = false }: Props) {
+  const [canManage, setCanManage] = useState(initialCanManage);
 
   useEffect(() => {
+    if (initialCanManage) {
+      setCanManage(true);
+      return;
+    }
+
     api.me()
       .then((me) => {
-        if (!me.is_authenticated || !me.id) {
+        if (!me.is_authenticated) {
           setCanManage(false);
           return;
         }
-        setCanManage(!!me.is_staff || me.id === createdBy);
+        setCanManage(false);
       })
       .catch(() => setCanManage(false));
-  }, [createdBy]);
+  }, [initialCanManage]);
 
   const onDelete = async () => {
     if (!confirm('게시글을 삭제할까요?')) return;

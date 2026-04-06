@@ -1,51 +1,36 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { api } from '@/lib/api';
-
-type CommentItem = {
-  id: number;
-  post: number;
-  user: number;
-  username: string;
-  content: string;
-  likes_count: number;
-  is_liked: boolean;
-  created_at: string;
-  updated_at: string;
-};
+import { CommentItem } from '@/types/project';
 
 type Props = {
   postId: number;
+  initialComments?: CommentItem[];
+  initialMeId?: number | null;
 };
 
-export function PostComments({ postId }: Props) {
-  const [meId, setMeId] = useState<number | null>(null);
-  const [comments, setComments] = useState<CommentItem[]>([]);
+export function PostComments({ postId, initialComments = [], initialMeId = null }: Props) {
+  const [meId, setMeId] = useState<number | null>(initialMeId);
+  const [comments, setComments] = useState<CommentItem[]>(initialComments);
   const [content, setContent] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const canWrite = useMemo(() => !!meId, [meId]);
 
   const load = async () => {
     setLoading(true);
     try {
-      const [me, list] = await Promise.all([api.me(), api.getComments(postId)]);
-      setMeId(me.id || null);
-      setComments(list);
+      setComments(await api.getComments(postId));
     } catch {
       setComments([]);
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    load();
-  }, [postId]);
 
   const onCreate = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Comment, CommentLike, Post, PostLike, Project
@@ -40,7 +40,7 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
-    @action(detail=True, methods=['get', 'post'], permission_classes=[IsAuthenticated], url_path='comments')
+    @action(detail=True, methods=['get', 'post'], permission_classes=[AllowAny], url_path='comments')
     def comments(self, request, *args, **kwargs):
         post = get_object_or_404(Post, id=kwargs.get('pk'))
 
@@ -48,6 +48,9 @@ class PostViewSet(viewsets.ModelViewSet):
             queryset = post.comments.select_related('user').all()
             serializer = CommentSerializer(queryset, many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+        if not request.user.is_authenticated:
+            return Response({'detail': '로그인이 필요합니다.'}, status=status.HTTP_401_UNAUTHORIZED)
 
         serializer = CommentSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)

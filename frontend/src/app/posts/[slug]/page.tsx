@@ -1,43 +1,42 @@
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { notFound } from 'next/navigation';
 
 import { FollowButton } from '@/components/follow-button';
 import { LikeButton } from '@/components/like-button';
 import { PostComments } from '@/components/post-comments';
 import { PostOwnerActions } from '@/components/post-owner-actions';
-import { api } from '@/lib/api';
-import { Post } from '@/types/project';
+import { serverApi } from '@/lib/server-api';
+import { AuthMe } from '@/types/project';
 
-export default function PostDetailPage() {
-  const params = useParams<{ slug: string }>();
-  const router = useRouter();
-  const slug = params.slug;
+type Props = {
+  params: Promise<{
+    slug: string;
+  }>;
+};
 
-  const [post, setPost] = useState<Post | null>(null);
-  const [loading, setLoading] = useState(true);
+export default async function PostDetailPage({ params }: Props) {
+  const { slug } = await params;
+  const fallbackMe: AuthMe = { is_authenticated: false };
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const detail = await api.getPostBySlug(slug);
-        setPost(detail);
-      } catch {
-        router.push('/');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (slug) load();
-  }, [slug, router]);
-
-  if (loading || !post) {
-    return <p className="text-sm text-zinc-600 dark:text-zinc-400">로딩 중...</p>;
+  let post;
+  try {
+    post = await serverApi.getPostBySlug(slug);
+  } catch {
+    notFound();
   }
+
+  const [me, comments] = await Promise.all([
+    serverApi.getMe().catch(() => fallbackMe),
+    serverApi.getComments(post.id).catch(() => []),
+  ]);
+
+  const canManage = !!me.is_authenticated && (!!me.is_staff || me.id === post.created_by);
+  const viewerUsername = me.is_authenticated ? (me.username ?? null) : null;
+  const initialIsFollowing =
+    viewerUsername && post.created_by_username && viewerUsername !== post.created_by_username
+      ? (await serverApi.getFollowStatus(post.created_by_username).catch(() => ({ is_following: false }))).is_following
+      : false;
 
   const imageSrc =
     post.thumbnail_url ||
@@ -64,7 +63,11 @@ export default function PostDetailPage() {
                   <Link href={`/users/${post.created_by_username}/posts`} className="underline-offset-2 hover:underline">
                     @{post.created_by_username}
                   </Link>
-                  <FollowButton username={post.created_by_username} />
+                  <FollowButton
+                    username={post.created_by_username}
+                    viewerUsername={viewerUsername}
+                    initialIsFollowing={initialIsFollowing}
+                  />
                 </span>
               ) : (
                 '관리자'
@@ -83,12 +86,12 @@ export default function PostDetailPage() {
 
           <div className="flex flex-wrap items-center gap-2">
             <LikeButton postId={post.id} initialLiked={post.is_liked} initialLikesCount={post.likes_count} />
-            <PostOwnerActions postId={post.id} postSlug={post.slug} createdBy={post.created_by} />
+            <PostOwnerActions postId={post.id} postSlug={post.slug} canManage={canManage} />
           </div>
         </div>
       </article>
 
-      <PostComments postId={post.id} />
+      <PostComments postId={post.id} initialComments={comments} initialMeId={me.id ?? null} />
     </section>
   );
 }

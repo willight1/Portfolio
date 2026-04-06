@@ -6,15 +6,23 @@ import { api } from '@/lib/api';
 
 type Props = {
   username: string;
+  viewerUsername?: string | null;
+  initialIsFollowing?: boolean;
 };
 
-export function FollowButton({ username }: Props) {
-  const [ready, setReady] = useState(false);
-  const [isMine, setIsMine] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
+export function FollowButton({ username, viewerUsername = null, initialIsFollowing = false }: Props) {
+  const [ready, setReady] = useState(!!viewerUsername);
+  const [isMine, setIsMine] = useState(viewerUsername === username);
+  const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (viewerUsername) {
+      setIsMine(viewerUsername === username);
+      setReady(true);
+      return;
+    }
+
     const load = async () => {
       try {
         const me = await api.me();
@@ -28,8 +36,7 @@ export function FollowButton({ username }: Props) {
           return;
         }
 
-        const status = await api.getFollowStatus(username);
-        setIsFollowing(status.is_following);
+        setIsFollowing((await api.getFollowStatus(username)).is_following);
         setReady(true);
       } catch {
         setReady(false);
@@ -37,7 +44,7 @@ export function FollowButton({ username }: Props) {
     };
 
     load();
-  }, [username]);
+  }, [username, viewerUsername]);
 
   const onToggle = async () => {
     if (loading) return;

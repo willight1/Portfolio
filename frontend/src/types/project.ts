@@ -41,6 +41,18 @@ export type UserPreview = {
   following_count: number;
 };
 
+export type CommentItem = {
+  id: number;
+  post: number;
+  user: number;
+  username: string;
+  content: string;
+  likes_count: number;
+  is_liked: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type AuthMe = {
   id?: number;
   username?: string;
