@@ -1,10 +1,14 @@
 import Link from 'next/link';
 
 import { PostCard } from '@/components/post-card';
+import { PostCreateLink } from '@/components/post-create-link';
 import { serverApi } from '@/lib/server-api';
 
 export default async function HomePage() {
-  const posts = await serverApi.getPosts();
+  const [posts, me] = await Promise.all([
+    serverApi.getPosts(),
+    serverApi.getMe().catch(() => null),
+  ]);
 
   return (
     <section className="space-y-10">
@@ -13,12 +17,7 @@ export default async function HomePage() {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">Portfolio Feed</p>
           <h1 className="text-3xl font-medium tracking-tight text-zinc-800 sm:text-4xl lg:text-5xl dark:text-zinc-200">Posts</h1>
         </div>
-        <Link
-          href="/posts/new"
-          className="inline-flex rounded-xl border border-zinc-400 bg-white px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
-        >
-          작성하기
-        </Link>
+        <PostCreateLink canWrite={!!me?.is_authenticated} />
       </div>
 
       {posts.length > 0 ? (

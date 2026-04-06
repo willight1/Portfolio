@@ -11,6 +11,8 @@ type Props = {
 
 export function PostCreateLink({ canWrite: initialCanWrite = false }: Props) {
   const [canWrite, setCanWrite] = useState(initialCanWrite);
+  const buttonClass =
+    'inline-flex rounded-xl border border-zinc-900 bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-700 dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300';
 
   useEffect(() => {
     api.me()
@@ -23,9 +25,9 @@ export function PostCreateLink({ canWrite: initialCanWrite = false }: Props) {
   return (
     <Link
       href="/posts/new"
-      className="inline-flex rounded-xl border border-zinc-900 bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-700 dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+      className={buttonClass}
     >
-      글쓰기
+      작성하기
     </Link>
   );
 }

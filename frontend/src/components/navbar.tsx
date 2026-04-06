@@ -8,7 +8,7 @@ export function Navbar() {
   const [isAuthed, setIsAuthed] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
   const baseLinkClass =
-    'rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100';
+    'rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100';
 
   useEffect(() => {
     api.me()
@@ -38,7 +38,7 @@ export function Navbar() {
           <span>Portfolio</span>
         </Link>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-1.5">
           <Link href="/" className={baseLinkClass}>
             Home
           </Link>
@@ -47,22 +47,14 @@ export function Navbar() {
           </Link>
 
           {isAuthed ? (
-            <>
-              <Link href="/account" className={baseLinkClass}>
-                My Page
-              </Link>
-            </>
+            <Link href="/account" className={baseLinkClass}>
+              My Page
+            </Link>
           ) : (
             <Link href="/signup" className={baseLinkClass}>
               Sign up
             </Link>
           )}
-
-          {isAuthed ? (
-            <Link href="/account" className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900">
-              Account
-            </Link>
-          ) : null}
 
           {isAuthed && isStaff && (
             <Link href="/admin" className={baseLinkClass}>
@@ -71,11 +63,11 @@ export function Navbar() {
           )}
 
           {isAuthed ? (
-            <button onClick={onLogout} className="rounded-xl border border-zinc-900 bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300">
+            <button onClick={onLogout} className={baseLinkClass}>
               Logout
             </button>
           ) : (
-            <Link href="/login" className="rounded-xl border border-zinc-900 bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300">
+            <Link href="/login" className={baseLinkClass}>
               Login
             </Link>
           )}
