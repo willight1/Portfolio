@@ -46,7 +46,7 @@ export default function MyPostsPage() {
       </div>
 
       {posts.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3 xl:gap-7">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
