@@ -55,7 +55,14 @@ export default async function PostDetailPage({ params }: Props) {
 
         <div className="space-y-6 p-5 sm:p-8 lg:p-10">
           <div className="space-y-3">
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{post.title}</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{post.title}</h1>
+              {!post.is_public && (
+                <span className="rounded-full border border-zinc-300 px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                  Private
+                </span>
+              )}
+            </div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               작성자:{' '}
               {post.created_by_username ? (

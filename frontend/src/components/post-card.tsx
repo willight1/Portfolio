@@ -28,9 +28,16 @@ export function PostCard({ post }: Props) {
 
         <div className="space-y-3 px-4 pb-5 pt-4 sm:px-5 sm:pb-6">
           <div className="space-y-1.5">
-            <h3 className="line-clamp-1 text-[1.02rem] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-              {post.title}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="line-clamp-1 text-[1.02rem] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                {post.title}
+              </h3>
+              {!post.is_public && (
+                <span className="rounded-full border border-zinc-300 px-2 py-0.5 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                  Private
+                </span>
+              )}
+            </div>
             <p className="line-clamp-2 text-[0.84rem] leading-5 text-zinc-600 dark:text-zinc-400">{post.excerpt}</p>
           </div>
 

@@ -22,6 +22,7 @@ export type Post = {
   excerpt: string;
   content: string;
   source_url: string;
+  is_public: boolean;
   thumbnail: string | null;
   thumbnail_url: string | null;
   tags: string;
