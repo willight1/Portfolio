@@ -49,6 +49,7 @@ class Post(models.Model):
     excerpt = models.CharField(max_length=255)
     content = models.TextField()
     source_url = models.URLField(blank=True)
+    is_public = models.BooleanField(default=True)
     thumbnail = models.ImageField(upload_to='posts/thumbnails/', blank=True, null=True)
     # CSV 형식 태그 (예: "django,python,portfolio")
     tags = models.CharField(max_length=255, blank=True)

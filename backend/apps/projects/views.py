@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
@@ -31,10 +32,26 @@ class PostViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     lookup_field = 'slug'
 
+    def _visible_queryset(self):
+        queryset = self.queryset
+        user = self.request.user
+        if user.is_authenticated:
+            if user.is_staff:
+                return queryset
+            return queryset.filter(Q(is_public=True) | Q(created_by=user))
+        return queryset.filter(is_public=True)
+
+    def get_queryset(self):
+        if self.action in ['update', 'partial_update', 'destroy']:
+            return self.queryset
+        return self._visible_queryset()
+
     def get_object(self):
         # 상세 조회는 slug로, 수정/삭제/좋아요는 id 사용
         if self.action in ['update', 'partial_update', 'destroy']:
             return get_object_or_404(Post, id=self.kwargs.get('pk'))
+        if self.action == 'toggle_like':
+            return get_object_or_404(self._visible_queryset(), id=self.kwargs.get('pk'))
         return super().get_object()
 
     def perform_create(self, serializer):
@@ -42,7 +59,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get', 'post'], permission_classes=[AllowAny], url_path='comments')
     def comments(self, request, *args, **kwargs):
-        post = get_object_or_404(Post, id=kwargs.get('pk'))
+        post = get_object_or_404(self._visible_queryset(), id=kwargs.get('pk'))
 
         if request.method == 'GET':
             queryset = post.comments.select_related('user').all()
@@ -58,13 +75,13 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def by_author(self, request, username=None):
-        queryset = self.get_queryset().filter(created_by__username=username)
+        queryset = self._visible_queryset().filter(created_by__username=username)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated], url_path='like')
     def toggle_like(self, request, *args, **kwargs):
-        post = get_object_or_404(Post, id=kwargs.get('pk'))
+        post = get_object_or_404(self._visible_queryset(), id=kwargs.get('pk'))
         like, created = PostLike.objects.get_or_create(post=post, user=request.user)
 
         if created:
