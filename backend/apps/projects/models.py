@@ -48,6 +48,7 @@ class Post(models.Model):
     slug = models.SlugField(unique=True, max_length=220, blank=True)
     excerpt = models.CharField(max_length=255)
     content = models.TextField()
+    source_url = models.URLField(blank=True)
     thumbnail = models.ImageField(upload_to='posts/thumbnails/', blank=True, null=True)
     # CSV 형식 태그 (예: "django,python,portfolio")
     tags = models.CharField(max_length=255, blank=True)

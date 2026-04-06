@@ -74,6 +74,18 @@ export default async function PostDetailPage({ params }: Props) {
               )}
             </p>
             <p className="whitespace-pre-line text-sm leading-7 text-zinc-700 dark:text-zinc-300">{post.content}</p>
+            {post.source_url && (
+              <p>
+                <a
+                  href={post.source_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm font-medium text-zinc-700 underline underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+                >
+                  관련 링크 열기
+                </a>
+              </p>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">

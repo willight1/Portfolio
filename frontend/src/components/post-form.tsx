@@ -15,6 +15,7 @@ export function PostForm({ initial = null, onSubmit, submitLabel }: Props) {
   const [title, setTitle] = useState(initial?.title ?? '');
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? '');
   const [content, setContent] = useState(initial?.content ?? '');
+  const [sourceUrl, setSourceUrl] = useState(initial?.source_url ?? '');
   const [tags, setTags] = useState(initial?.tags ?? '');
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -29,6 +30,7 @@ export function PostForm({ initial = null, onSubmit, submitLabel }: Props) {
       formData.append('title', title);
       formData.append('excerpt', excerpt);
       formData.append('content', content);
+      formData.append('source_url', sourceUrl);
       formData.append('tags', tags);
       if (thumbnail) {
         formData.append('thumbnail', makeSafeUploadFile(thumbnail));
@@ -38,6 +40,7 @@ export function PostForm({ initial = null, onSubmit, submitLabel }: Props) {
         setTitle('');
         setExcerpt('');
         setContent('');
+        setSourceUrl('');
         setTags('');
         setThumbnail(null);
       }
@@ -66,6 +69,7 @@ export function PostForm({ initial = null, onSubmit, submitLabel }: Props) {
       <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="게시글 제목" required className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950" />
       <input value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="짧은 소개" required className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950" />
       <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="본문" required rows={5} className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950" />
+      <input value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} placeholder="관련 URL" type="url" className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950" />
       <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="태그 (쉼표로 구분)" className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950" />
       <input
         type="file"

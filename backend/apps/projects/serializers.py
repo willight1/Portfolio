@@ -62,6 +62,7 @@ class PostSerializer(serializers.ModelSerializer):
             'slug',
             'excerpt',
             'content',
+            'source_url',
             'thumbnail',
             'thumbnail_url',
             'tags',

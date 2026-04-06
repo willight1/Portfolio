@@ -21,6 +21,7 @@ export type Post = {
   slug: string;
   excerpt: string;
   content: string;
+  source_url: string;
   thumbnail: string | null;
   thumbnail_url: string | null;
   tags: string;
