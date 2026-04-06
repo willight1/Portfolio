@@ -7,6 +7,8 @@ import { api } from '@/lib/api';
 export function Navbar() {
   const [isAuthed, setIsAuthed] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
+  const baseLinkClass =
+    'rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100';
 
   useEffect(() => {
     api.me()
@@ -37,35 +39,33 @@ export function Navbar() {
         </Link>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <Link href="/" className="rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100">
+          <Link href="/" className={baseLinkClass}>
             Home
           </Link>
-          {isAuthed ? (
-            <>
-              <Link href="/my-posts" className="rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100">
-                My Posts
-              </Link>
-              <Link href="/following" className="rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100">
-                Following
-              </Link>
-              <Link href="/followers" className="rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100">
-                Followers
-              </Link>
-            </>
-          ) : null}
+          <Link href="/posts" className={baseLinkClass}>
+            Posts
+          </Link>
 
           {isAuthed ? (
-            <Link href="/account" className="rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100">
-              Account
-            </Link>
+            <>
+              <Link href="/account" className={baseLinkClass}>
+                My Page
+              </Link>
+            </>
           ) : (
-            <Link href="/signup" className="rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100">
+            <Link href="/signup" className={baseLinkClass}>
               Sign up
             </Link>
           )}
 
+          {isAuthed ? (
+            <Link href="/account" className="rounded-xl border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900">
+              Account
+            </Link>
+          ) : null}
+
           {isAuthed && isStaff && (
-            <Link href="/admin" className="rounded-xl px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100">
+            <Link href="/admin" className={baseLinkClass}>
               Admin
             </Link>
           )}
