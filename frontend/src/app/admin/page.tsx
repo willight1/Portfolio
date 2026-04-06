@@ -5,12 +5,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { PostForm } from '@/components/post-form';
 import { ProjectForm } from '@/components/project-form';
 import { api } from '@/lib/api';
-import { Post, Project } from '@/types/project';
+import { OperatorNote, Post, Project } from '@/types/project';
 
 export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [notes, setNotes] = useState<OperatorNote[]>([]);
 
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
@@ -31,9 +32,10 @@ export default function AdminPage() {
         window.location.href = '/login';
         return;
       }
-      const [projectList, postList] = await Promise.all([api.getProjects(), api.getPosts()]);
+      const [projectList, postList, noteList] = await Promise.all([api.getProjects(), api.getPosts(), api.getAdminOperatorNotes()]);
       setProjects(projectList);
       setPosts(postList);
+      setNotes(noteList);
     } catch {
       setError('인증 확인 또는 데이터 로딩에 실패했습니다.');
     } finally {
@@ -152,6 +154,35 @@ export default function AdminPage() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <h2 className="text-lg font-semibold">운영자 쪽지 목록</h2>
+        {notes.length > 0 ? (
+          <div className="space-y-3">
+            {notes.map((note) => (
+              <div key={note.id} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-950">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{note.title}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">@{note.username}</p>
+                  </div>
+                  <span className="rounded-full border border-zinc-300 px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                    {note.status}
+                  </span>
+                </div>
+                <p className="mt-2 whitespace-pre-line text-sm text-zinc-700 dark:text-zinc-300">{note.content}</p>
+                {note.admin_reply && (
+                  <p className="mt-3 whitespace-pre-line text-sm text-zinc-600 dark:text-zinc-400">답변: {note.admin_reply}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-zinc-300 p-4 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+            아직 들어온 쪽지가 없습니다.
+          </div>
+        )}
       </div>
     </section>
   );

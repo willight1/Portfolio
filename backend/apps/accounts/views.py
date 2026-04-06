@@ -1,8 +1,6 @@
-from django.db.models import Count, Prefetch
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
@@ -10,13 +8,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import ChatMessage, ChatRoom, Follow, UserPresence
-from .serializers import ChatMessageSerializer, ChatRoomSerializer, RegisterSerializer, UserPreviewSerializer
-
-
-def touch_presence(user):
-    if user and user.is_authenticated:
-        UserPresence.objects.update_or_create(user=user, defaults={'last_seen': timezone.now()})
+from .models import Follow, OperatorNote
+from .serializers import OperatorNoteSerializer, RegisterSerializer, UserPreviewSerializer
 
 
 class RegisterAPIView(APIView):
@@ -28,7 +21,6 @@ class RegisterAPIView(APIView):
         user = serializer.save()
 
         login(request, user)
-        touch_presence(user)
 
         return Response(
             {
@@ -54,7 +46,6 @@ class LoginAPIView(APIView):
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
         login(request, user)
-        touch_presence(user)
         return Response(
             {
                 'id': user.id,
@@ -80,7 +71,6 @@ class MeAPIView(APIView):
         if not request.user.is_authenticated:
             return Response({'is_authenticated': False}, status=status.HTTP_200_OK)
 
-        touch_presence(request.user)
         followers_count = Follow.objects.filter(following=request.user).count()
         following_count = Follow.objects.filter(follower=request.user).count()
 
@@ -141,8 +131,7 @@ class FollowingListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        touch_presence(request.user)
-        users = User.objects.filter(follower_relations__follower=request.user).select_related('presence').distinct()
+        users = User.objects.filter(follower_relations__follower=request.user).distinct()
         serializer = UserPreviewSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -151,8 +140,7 @@ class FollowersListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        touch_presence(request.user)
-        users = User.objects.filter(following_relations__following=request.user).select_related('presence').distinct()
+        users = User.objects.filter(following_relations__following=request.user).distinct()
         serializer = UserPreviewSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -161,7 +149,6 @@ class FollowToggleAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, username):
-        touch_presence(request.user)
         target = get_object_or_404(User, username=username)
 
         if target.id == request.user.id:
@@ -174,7 +161,6 @@ class FollowToggleAPIView(APIView):
         return Response({'detail': 'Already following', 'is_following': True}, status=status.HTTP_200_OK)
 
     def delete(self, request, username):
-        touch_presence(request.user)
         target = get_object_or_404(User, username=username)
         deleted_count, _ = Follow.objects.filter(follower=request.user, following=target).delete()
         if deleted_count > 0:
@@ -186,114 +172,38 @@ class FollowStatusAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, username):
-        touch_presence(request.user)
         target = get_object_or_404(User, username=username)
         is_following = Follow.objects.filter(follower=request.user, following=target).exists()
         return Response({'is_following': is_following}, status=status.HTTP_200_OK)
 
 
-class UserDirectoryAPIView(APIView):
+class OperatorNoteListCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        touch_presence(request.user)
-        users = User.objects.exclude(id=request.user.id).select_related('presence').order_by('username')
-        serializer = UserPreviewSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class ChatRoomListCreateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self, request):
-        return (
-            ChatRoom.objects.filter(participants=request.user)
-            .prefetch_related(
-                Prefetch('participants', queryset=User.objects.select_related('presence').order_by('username'))
-            )
-            .distinct()
-        )
-
-    def get(self, request):
-        touch_presence(request.user)
-        serializer = ChatRoomSerializer(self.get_queryset(request), many=True, context={'request': request})
+        serializer = OperatorNoteSerializer(OperatorNote.objects.filter(user=request.user), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        touch_presence(request.user)
-        participant_ids = request.data.get('participant_ids') or []
-        name = (request.data.get('name') or '').strip()
-
-        if not isinstance(participant_ids, list):
-            return Response({'detail': 'participant_ids 형식이 올바르지 않습니다.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        ids = {int(value) for value in participant_ids if str(value).isdigit()}
-        ids.add(request.user.id)
-        participants = list(User.objects.filter(id__in=ids))
-
-        if len(participants) < 2:
-            return Response({'detail': '그룹 채팅에는 최소 2명의 참여자가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        room = ChatRoom.objects.create(name=name, is_group=True, created_by=request.user)
-        room.participants.set(participants)
-        serializer = ChatRoomSerializer(room, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class DirectChatRoomAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, username):
-        touch_presence(request.user)
-        target = get_object_or_404(User, username=username)
-
-        if target.id == request.user.id:
-            return Response({'detail': '본인과는 1:1 채팅을 만들 수 없습니다.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        room = (
-            ChatRoom.objects.filter(is_group=False, participants=request.user)
-            .filter(participants=target)
-            .annotate(participant_count=Count('participants'))
-            .filter(participant_count=2)
-            .first()
-        )
-
-        if room is None:
-            room = ChatRoom.objects.create(is_group=False, created_by=request.user)
-            room.participants.set([request.user, target])
-
-        serializer = ChatRoomSerializer(room, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class ChatMessageListCreateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def _room(self, request, room_id):
-        return get_object_or_404(
-            ChatRoom.objects.prefetch_related(
-                Prefetch('participants', queryset=User.objects.select_related('presence').order_by('username'))
-            ),
-            id=room_id,
-            participants=request.user,
-        )
-
-    def get(self, request, room_id):
-        touch_presence(request.user)
-        room = self._room(request, room_id)
-        serializer = ChatMessageSerializer(room.messages.select_related('user').all(), many=True)
-        return Response({'room': ChatRoomSerializer(room, context={'request': request}).data, 'messages': serializer.data}, status=status.HTTP_200_OK)
-
-    def post(self, request, room_id):
-        touch_presence(request.user)
-        room = self._room(request, room_id)
+        title = (request.data.get('title') or '').strip()
         content = (request.data.get('content') or '').strip()
+        if not title:
+            return Response({'detail': '제목을 입력하세요.'}, status=status.HTTP_400_BAD_REQUEST)
         if not content:
-            return Response({'detail': '메시지를 입력하세요.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': '내용을 입력하세요.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        message = ChatMessage.objects.create(room=room, user=request.user, content=content)
-        room.save(update_fields=['updated_at'])
-        return Response(ChatMessageSerializer(message).data, status=status.HTTP_201_CREATED)
+        note = OperatorNote.objects.create(user=request.user, title=title, content=content)
+        return Response(OperatorNoteSerializer(note).data, status=status.HTTP_201_CREATED)
+
+
+class AdminOperatorNoteListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not request.user.is_staff:
+            return Response({'detail': '권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
+        serializer = OperatorNoteSerializer(OperatorNote.objects.select_related('user').all(), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')

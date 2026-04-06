@@ -11,42 +11,19 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='UserPresence',
+            name='OperatorNote',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('last_seen', models.DateTimeField(auto_now=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='presence', to='auth.user')),
-            ],
-            options={
-                'ordering': ['-last_seen'],
-            },
-        ),
-        migrations.CreateModel(
-            name='ChatRoom',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(blank=True, max_length=120)),
-                ('is_group', models.BooleanField(default=False)),
+                ('title', models.CharField(max_length=120)),
+                ('content', models.TextField()),
+                ('status', models.CharField(default='pending', max_length=20)),
+                ('admin_reply', models.TextField(blank=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='created_chat_rooms', to='auth.user')),
-                ('participants', models.ManyToManyField(related_name='chat_rooms', to='auth.user')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='operator_notes', to='auth.user')),
             ],
             options={
                 'ordering': ['-updated_at', '-created_at'],
-            },
-        ),
-        migrations.CreateModel(
-            name='ChatMessage',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('content', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='accounts.chatroom')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='chat_messages', to='auth.user')),
-            ],
-            options={
-                'ordering': ['created_at'],
             },
         ),
     ]

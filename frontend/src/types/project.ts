@@ -41,8 +41,6 @@ export type UserPreview = {
   email: string;
   followers_count: number;
   following_count: number;
-  is_online: boolean;
-  last_seen: string | null;
 };
 
 export type CommentItem = {
@@ -67,23 +65,14 @@ export type AuthMe = {
   following_count?: number;
 };
 
-export type ChatMessage = {
+export type OperatorNote = {
   id: number;
-  room: number;
   user: number;
   username: string;
+  title: string;
   content: string;
-  created_at: string;
-};
-
-export type ChatRoom = {
-  id: number;
-  name: string;
-  display_name: string;
-  is_group: boolean;
-  created_by: number;
-  participants: UserPreview[];
-  last_message: ChatMessage | null;
+  status: string;
+  admin_reply: string;
   created_at: string;
   updated_at: string;
 };

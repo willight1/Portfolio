@@ -1,4 +1,4 @@
-import { AuthMe, ChatMessage, ChatRoom, Post, Project, UserPreview } from '@/types/project';
+import { AuthMe, OperatorNote, Post, Project, UserPreview } from '@/types/project';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
@@ -84,27 +84,16 @@ export const api = {
 
   getFollowing: () => apiFetch<UserPreview[]>('/api/auth/following/'),
   getFollowers: () => apiFetch<UserPreview[]>('/api/auth/followers/'),
-  getUsers: () => apiFetch<UserPreview[]>('/api/auth/users/'),
   getFollowStatus: (username: string) => apiFetch<{ is_following: boolean }>(`/api/auth/follow/${username}/status/`),
   followUser: (username: string) => apiFetch<{ detail: string; is_following: boolean }>(`/api/auth/follow/${username}/`, { method: 'POST' }),
   unfollowUser: (username: string) => apiFetch<{ detail: string; is_following: boolean }>(`/api/auth/follow/${username}/`, { method: 'DELETE' }),
-  getChatRooms: () => apiFetch<ChatRoom[]>('/api/auth/chat/rooms/'),
-  createGroupChatRoom: (name: string, participantIds: number[]) =>
-    apiFetch<ChatRoom>('/api/auth/chat/rooms/', {
+  getOperatorNotes: () => apiFetch<OperatorNote[]>('/api/auth/operator-notes/'),
+  createOperatorNote: (title: string, content: string) =>
+    apiFetch<OperatorNote>('/api/auth/operator-notes/', {
       method: 'POST',
-      body: JSON.stringify({ name, participant_ids: participantIds }),
+      body: JSON.stringify({ title, content }),
     }),
-  getOrCreateDirectChat: (username: string) =>
-    apiFetch<ChatRoom>(`/api/auth/chat/direct/${username}/`, {
-      method: 'POST',
-    }),
-  getChatMessages: (roomId: number) =>
-    apiFetch<{ room: ChatRoom; messages: ChatMessage[] }>(`/api/auth/chat/rooms/${roomId}/messages/`),
-  sendChatMessage: (roomId: number, content: string) =>
-    apiFetch<ChatMessage>(`/api/auth/chat/rooms/${roomId}/messages/`, {
-      method: 'POST',
-      body: JSON.stringify({ content }),
-    }),
+  getAdminOperatorNotes: () => apiFetch<OperatorNote[]>('/api/auth/admin/operator-notes/'),
 
   getProjects: () => apiFetch<Project[]>('/api/projects/'),
   getProjectBySlug: (slug: string) => apiFetch<Project>(`/api/projects/${slug}/`),
