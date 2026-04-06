@@ -2,11 +2,19 @@ import Link from 'next/link';
 
 import { FollowButton } from '@/components/follow-button';
 import { PostCard } from '@/components/post-card';
-import { api } from '@/lib/api';
+import { anonymousMe, serverApi } from '@/lib/server-api';
 
 export default async function UserPostsPage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
-  const posts = await api.getPostsByAuthor(username);
+  const [posts, me] = await Promise.all([
+    serverApi.getPostsByAuthor(username),
+    serverApi.getMe().catch(() => anonymousMe),
+  ]);
+  const viewerUsername = me.is_authenticated ? (me.username ?? null) : null;
+  const initialIsFollowing =
+    viewerUsername && viewerUsername !== username
+      ? (await serverApi.getFollowStatus(username).catch(() => ({ is_following: false }))).is_following
+      : false;
 
   return (
     <section className="space-y-8">
@@ -18,7 +26,7 @@ export default async function UserPostsPage({ params }: { params: Promise<{ user
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">Author Posts</p>
         <div className="flex items-center gap-2">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">@{username}님의 게시글</h1>
-          <FollowButton username={username} />
+          <FollowButton username={username} viewerUsername={viewerUsername} initialIsFollowing={initialIsFollowing} />
         </div>
       </div>
 

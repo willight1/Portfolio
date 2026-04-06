@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
 import { PostCard } from '@/components/post-card';
-import { api } from '@/lib/api';
+import { serverApi } from '@/lib/server-api';
 
 export default async function HomePage() {
-  const posts = await api.getPosts();
+  const posts = await serverApi.getPosts();
 
   return (
     <section className="space-y-10">

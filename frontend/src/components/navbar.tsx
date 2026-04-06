@@ -1,24 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
-export function Navbar() {
-  const [isAuthed, setIsAuthed] = useState(false);
-  const [isStaff, setIsStaff] = useState(false);
+type Props = {
+  isAuthed: boolean;
+  isStaff: boolean;
+};
 
-  useEffect(() => {
-    api.me()
-      .then((me) => {
-        setIsAuthed(!!me.is_authenticated);
-        setIsStaff(!!me.is_staff);
-      })
-      .catch(() => {
-        setIsAuthed(false);
-        setIsStaff(false);
-      });
-  }, []);
+export function Navbar({ isAuthed, isStaff }: Props) {
 
   const onLogout = async () => {
     await api.ensureCsrf();

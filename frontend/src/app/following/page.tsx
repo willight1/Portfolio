@@ -1,35 +1,15 @@
-'use client';
-
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { redirect } from 'next/navigation';
 
-import { api } from '@/lib/api';
-import { UserPreview } from '@/types/project';
+import { anonymousMe, serverApi } from '@/lib/server-api';
 
-export default function FollowingPage() {
-  const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<UserPreview[]>([]);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const me = await api.me();
-        if (!me.is_authenticated) {
-          window.location.href = '/login';
-          return;
-        }
-        const following = await api.getFollowing();
-        setUsers(following);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
-
-  if (loading) {
-    return <p className="text-sm text-zinc-600 dark:text-zinc-400">로딩 중...</p>;
+export default async function FollowingPage() {
+  const me = await serverApi.getMe().catch(() => anonymousMe);
+  if (!me.is_authenticated) {
+    redirect('/login');
   }
+
+  const users = await serverApi.getFollowing();
 
   return (
     <section className="space-y-6">

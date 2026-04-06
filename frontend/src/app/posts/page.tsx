@@ -1,9 +1,12 @@
 import { PostCard } from '@/components/post-card';
 import { PostCreateLink } from '@/components/post-create-link';
-import { api } from '@/lib/api';
+import { anonymousMe, serverApi } from '@/lib/server-api';
 
 export default async function PostsPage() {
-  const posts = await api.getPosts();
+  const [posts, me] = await Promise.all([
+    serverApi.getPosts(),
+    serverApi.getMe().catch(() => anonymousMe),
+  ]);
 
   return (
     <section className="space-y-10">
@@ -15,7 +18,7 @@ export default async function PostsPage() {
             태그와 좋아요를 지원하는 게시글 피드입니다.
           </p>
         </div>
-        <PostCreateLink />
+        <PostCreateLink canWrite={!!me.is_authenticated} />
       </div>
 
       {posts.length > 0 ? (

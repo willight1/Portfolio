@@ -1,49 +1,29 @@
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { notFound } from 'next/navigation';
 
-import { api } from '@/lib/api';
-import { Project } from '@/types/project';
+import { serverApi } from '@/lib/server-api';
 
-export default function ProjectDetailPage() {
-  const params = useParams<{ slug: string }>();
-  const router = useRouter();
-  const slug = params.slug;
+type Props = {
+  params: Promise<{
+    slug: string;
+  }>;
+};
 
-  const [project, setProject] = useState<Project | null>(null);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+export default async function ProjectDetailPage({ params }: Props) {
+  const { slug } = await params;
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const [detail, list] = await Promise.all([api.getProjectBySlug(slug), api.getProjects()]);
-        setProject(detail);
-        setProjects(list);
-      } catch {
-        router.push('/');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (slug) load();
-  }, [slug, router]);
-
-  const { prev, next } = useMemo(() => {
-    if (!project) return { prev: null as Project | null, next: null as Project | null };
-    const currentIndex = projects.findIndex((p) => p.slug === project.slug);
-    const prevProject = currentIndex > 0 ? projects[currentIndex - 1] : null;
-    const nextProject = currentIndex >= 0 && currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
-    return { prev: prevProject, next: nextProject };
-  }, [project, projects]);
-
-  if (loading || !project) {
-    return <p className="text-sm text-zinc-600 dark:text-zinc-400">로딩 중...</p>;
+  let project;
+  try {
+    project = await serverApi.getProjectBySlug(slug);
+  } catch {
+    notFound();
   }
+
+  const projects = await serverApi.getProjects();
+  const currentIndex = projects.findIndex((item) => item.slug === project.slug);
+  const prev = currentIndex > 0 ? projects[currentIndex - 1] : null;
+  const next = currentIndex >= 0 && currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
 
   const imageSrc =
     project.thumbnail_url ||
