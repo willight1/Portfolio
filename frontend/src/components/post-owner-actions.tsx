@@ -9,9 +9,10 @@ type Props = {
   postId: number;
   postSlug: string;
   canManage?: boolean;
+  createdBy?: number | null;
 };
 
-export function PostOwnerActions({ postId, postSlug, canManage: initialCanManage = false }: Props) {
+export function PostOwnerActions({ postId, postSlug, canManage: initialCanManage = false, createdBy = null }: Props) {
   const [canManage, setCanManage] = useState(initialCanManage);
 
   useEffect(() => {
@@ -22,14 +23,14 @@ export function PostOwnerActions({ postId, postSlug, canManage: initialCanManage
 
     api.me()
       .then((me) => {
-        if (!me.is_authenticated) {
+        if (!me.is_authenticated || !me.id) {
           setCanManage(false);
           return;
         }
-        setCanManage(false);
+        setCanManage(!!me.is_staff || me.id === createdBy);
       })
       .catch(() => setCanManage(false));
-  }, [initialCanManage]);
+  }, [createdBy, initialCanManage]);
 
   const onDelete = async () => {
     if (!confirm('게시글을 삭제할까요?')) return;

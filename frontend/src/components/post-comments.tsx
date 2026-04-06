@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { api } from '@/lib/api';
 import { CommentItem } from '@/types/project';
@@ -31,6 +31,14 @@ export function PostComments({ postId, initialComments = [], initialMeId = null 
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (initialMeId !== null) return;
+
+    api.me()
+      .then((me) => setMeId(me.id || null))
+      .catch(() => setMeId(null));
+  }, [initialMeId]);
 
   const onCreate = async (e: React.FormEvent) => {
     e.preventDefault();

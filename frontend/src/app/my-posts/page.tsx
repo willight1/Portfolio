@@ -1,16 +1,37 @@
+'use client';
+
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import { PostCard } from '@/components/post-card';
-import { anonymousMe, serverApi } from '@/lib/server-api';
+import { api } from '@/lib/api';
+import { Post } from '@/types/project';
 
-export default async function MyPostsPage() {
-  const me = await serverApi.getMe().catch(() => anonymousMe);
-  if (!me.is_authenticated || !me.username) {
-    redirect('/login');
+export default function MyPostsPage() {
+  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const me = await api.me();
+        if (!me.is_authenticated || !me.username) {
+          window.location.href = '/login';
+          return;
+        }
+        const myPosts = await api.getPostsByAuthor(me.username);
+        setPosts(myPosts);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, []);
+
+  if (loading) {
+    return <p className="text-sm text-zinc-600 dark:text-zinc-400">로딩 중...</p>;
   }
-
-  const posts = await serverApi.getPostsByAuthor(me.username);
 
   return (
     <section className="space-y-8">

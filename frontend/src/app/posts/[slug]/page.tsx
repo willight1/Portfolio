@@ -86,7 +86,7 @@ export default async function PostDetailPage({ params }: Props) {
 
           <div className="flex flex-wrap items-center gap-2">
             <LikeButton postId={post.id} initialLiked={post.is_liked} initialLikesCount={post.likes_count} />
-            <PostOwnerActions postId={post.id} postSlug={post.slug} canManage={canManage} />
+            <PostOwnerActions postId={post.id} postSlug={post.slug} canManage={canManage} createdBy={post.created_by} />
           </div>
         </div>
       </article>

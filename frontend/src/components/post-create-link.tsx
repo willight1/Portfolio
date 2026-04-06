@@ -1,10 +1,23 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import { api } from '@/lib/api';
 
 type Props = {
-  canWrite: boolean;
+  canWrite?: boolean;
 };
 
-export function PostCreateLink({ canWrite }: Props) {
+export function PostCreateLink({ canWrite: initialCanWrite = false }: Props) {
+  const [canWrite, setCanWrite] = useState(initialCanWrite);
+
+  useEffect(() => {
+    api.me()
+      .then((me) => setCanWrite(!!me.is_authenticated))
+      .catch(() => setCanWrite(false));
+  }, []);
+
   if (!canWrite) return null;
 
   return (
