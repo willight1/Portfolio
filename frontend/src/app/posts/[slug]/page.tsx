@@ -7,7 +7,6 @@ import { LikeButton } from '@/components/like-button';
 import { PostComments } from '@/components/post-comments';
 import { PostOwnerActions } from '@/components/post-owner-actions';
 import { serverApi } from '@/lib/server-api';
-import { AuthMe } from '@/types/project';
 
 type Props = {
   params: Promise<{
@@ -17,7 +16,6 @@ type Props = {
 
 export default async function PostDetailPage({ params }: Props) {
   const { slug } = await params;
-  const fallbackMe: AuthMe = { is_authenticated: false };
 
   let post;
   try {
@@ -26,17 +24,7 @@ export default async function PostDetailPage({ params }: Props) {
     notFound();
   }
 
-  const [me, comments] = await Promise.all([
-    serverApi.getMe().catch(() => fallbackMe),
-    serverApi.getComments(post.id).catch(() => []),
-  ]);
-
-  const canManage = !!me.is_authenticated && (!!me.is_staff || me.id === post.created_by);
-  const viewerUsername = me.is_authenticated ? (me.username ?? null) : null;
-  const initialIsFollowing =
-    viewerUsername && post.created_by_username && viewerUsername !== post.created_by_username
-      ? (await serverApi.getFollowStatus(post.created_by_username).catch(() => ({ is_following: false }))).is_following
-      : false;
+  const comments = await serverApi.getComments(post.id).catch(() => []);
 
   const imageSrc =
     post.thumbnail_url ||
@@ -70,11 +58,7 @@ export default async function PostDetailPage({ params }: Props) {
                   <Link href={`/users/${post.created_by_username}/posts`} className="underline-offset-2 hover:underline">
                     @{post.created_by_username}
                   </Link>
-                  <FollowButton
-                    username={post.created_by_username}
-                    viewerUsername={viewerUsername}
-                    initialIsFollowing={initialIsFollowing}
-                  />
+                  <FollowButton username={post.created_by_username} />
                 </span>
               ) : (
                 '관리자'
@@ -105,12 +89,12 @@ export default async function PostDetailPage({ params }: Props) {
 
           <div className="flex flex-wrap items-center gap-2">
             <LikeButton postId={post.id} initialLiked={post.is_liked} initialLikesCount={post.likes_count} />
-            <PostOwnerActions postId={post.id} postSlug={post.slug} canManage={canManage} createdBy={post.created_by} />
+            <PostOwnerActions postId={post.id} postSlug={post.slug} createdBy={post.created_by} />
           </div>
         </div>
       </article>
 
-      <PostComments postId={post.id} initialComments={comments} initialMeId={me.id ?? null} />
+      <PostComments postId={post.id} initialComments={comments} />
     </section>
   );
 }

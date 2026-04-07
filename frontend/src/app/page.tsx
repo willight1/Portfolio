@@ -3,10 +3,7 @@ import { PostCreateLink } from '@/components/post-create-link';
 import { serverApi } from '@/lib/server-api';
 
 export default async function HomePage() {
-  const [posts, me] = await Promise.all([
-    serverApi.getPosts(),
-    serverApi.getMe().catch(() => null),
-  ]);
+  const posts = await serverApi.getPosts();
 
   return (
     <section className="space-y-10">
@@ -15,7 +12,7 @@ export default async function HomePage() {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">Portfolio Feed</p>
           <h1 className="text-3xl font-medium tracking-tight text-zinc-800 sm:text-4xl lg:text-5xl dark:text-zinc-200">Posts</h1>
         </div>
-        <PostCreateLink canWrite={!!me?.is_authenticated} />
+        <PostCreateLink />
       </div>
 
       {posts.length > 0 ? (
