@@ -1,4 +1,4 @@
-import { PostFeedSearch } from '@/components/post-feed-search';
+import { PostCard } from '@/components/post-card';
 import { PostCreateLink } from '@/components/post-create-link';
 import { serverApi } from '@/lib/server-api';
 
@@ -16,7 +16,11 @@ export default async function HomePage() {
       </div>
 
       {posts.length > 0 ? (
-        <PostFeedSearch posts={posts} />
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-zinc-300 p-14 text-center text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
           등록된 게시글이 없습니다.
