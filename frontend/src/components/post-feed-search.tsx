@@ -10,7 +10,6 @@ type SearchMode = 'title' | 'title_content' | 'author';
 
 type Props = {
   posts: Post[];
-  layout?: 'default' | 'inlineHeader';
 };
 
 type SortMode = 'latest' | 'likes' | 'views';
@@ -27,7 +26,7 @@ const sortOptions: Array<{ value: SortMode; label: string }> = [
   { value: 'views', label: '조회수순' },
 ];
 
-export function PostFeedSearch({ posts, layout = 'default' }: Props) {
+export function PostFeedSearch({ posts }: Props) {
   const [searchMode, setSearchMode] = useState<SearchMode>('title');
   const [sortMode, setSortMode] = useState<SortMode>('latest');
   const [selectedTag, setSelectedTag] = useState('all');
@@ -169,20 +168,6 @@ export function PostFeedSearch({ posts, layout = 'default' }: Props) {
       조건에 맞는 게시글이 없습니다.
     </div>
   );
-
-  if (layout === 'inlineHeader') {
-    return (
-      <>
-        <div className="xl:col-start-2 xl:col-end-3 xl:row-start-1">
-          {controls}
-        </div>
-        <div className="space-y-5 xl:col-span-full xl:row-start-2">
-          {tags}
-          {results}
-        </div>
-      </>
-    );
-  }
 
   return (
     <div className="space-y-5">
