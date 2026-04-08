@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django.db.models import F
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
@@ -52,7 +53,11 @@ class PostViewSet(viewsets.ModelViewSet):
             return get_object_or_404(Post, id=self.kwargs.get('pk'))
         if self.action == 'toggle_like':
             return get_object_or_404(self._visible_queryset(), id=self.kwargs.get('pk'))
-        return super().get_object()
+        obj = super().get_object()
+        if self.action == 'retrieve':
+            Post.objects.filter(pk=obj.pk).update(view_count=F('view_count') + 1)
+            obj.refresh_from_db(fields=['view_count'])
+        return obj
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)

@@ -28,6 +28,7 @@ export type Post = {
   tags: string;
   tags_list: string[];
   likes_count: number;
+  view_count: number;
   is_liked: boolean;
   created_by: number | null;
   created_by_username: string | null;

@@ -73,6 +73,7 @@ class PostSerializer(serializers.ModelSerializer):
             'tags',
             'tags_list',
             'likes_count',
+            'view_count',
             'is_liked',
             'created_by',
             'created_by_username',

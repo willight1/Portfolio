@@ -64,6 +64,7 @@ export default async function PostDetailPage({ params }: Props) {
                 '관리자'
               )}
             </p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">조회수 {post.view_count} · 좋아요 {post.likes_count}</p>
             <p className="whitespace-pre-line text-sm leading-7 text-zinc-700 dark:text-zinc-300">{post.content}</p>
             {post.source_url && (
               <p>
