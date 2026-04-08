@@ -173,8 +173,10 @@ export function PostFeedSearch({ posts, layout = 'default' }: Props) {
   if (layout === 'inlineHeader') {
     return (
       <>
-        {controls}
-        <div className="space-y-5 xl:col-span-full">
+        <div className="xl:col-start-2 xl:col-end-3 xl:row-start-1">
+          {controls}
+        </div>
+        <div className="space-y-5 xl:col-span-full xl:row-start-2">
           {tags}
           {results}
         </div>
