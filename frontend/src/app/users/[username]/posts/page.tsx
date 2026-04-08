@@ -8,7 +8,7 @@ export default async function UserPostsPage({ params }: { params: Promise<{ user
   const { username } = await params;
   const posts = await serverApi.getPostsByAuthor(username);
   const user = await serverApi.getUser(username).catch(() => null);
-  const authorLabel = posts[0]?.created_by_account_label || posts[0]?.created_by_display_name || user?.account_label || username;
+  const authorLabel = posts[0]?.created_by_display_name || user?.display_name || username;
 
   return (
     <section className="space-y-8">

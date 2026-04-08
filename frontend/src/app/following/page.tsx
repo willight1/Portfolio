@@ -41,7 +41,7 @@ export default function FollowingPage() {
           {users.map((user) => (
             <Link key={user.id} href={`/users/${user.username}/posts`} className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3 transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-900/80">
               <div>
-                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{userLabel(user.account_label, user.username)}</p>
+                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{userLabel(user.display_name, user.username)}</p>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">{user.name || '이름 미입력'}</p>
               </div>
               <span className="text-xs text-zinc-500 dark:text-zinc-400">followers {user.followers_count}</span>

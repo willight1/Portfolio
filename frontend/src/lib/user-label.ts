@@ -1,3 +1,3 @@
-export function userLabel(accountLabel?: string | null, username?: string | null) {
-  return accountLabel || username || '-';
+export function userLabel(displayName?: string | null, username?: string | null) {
+  return displayName || username || '-';
 }
