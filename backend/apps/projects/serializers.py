@@ -113,11 +113,11 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    username = serializers.SerializerMethodField(read_only=True)
+    nickname = serializers.CharField(source='guest_nickname')
     display_name = serializers.SerializerMethodField(read_only=True)
-    account_label = serializers.SerializerMethodField(read_only=True)
     likes_count = serializers.SerializerMethodField(read_only=True)
     is_liked = serializers.SerializerMethodField(read_only=True)
+    author_ip = serializers.IPAddressField(read_only=True)
 
     class Meta:
         model = Comment
@@ -125,25 +125,29 @@ class CommentSerializer(serializers.ModelSerializer):
             'id',
             'post',
             'user',
-            'username',
+            'nickname',
             'display_name',
-            'account_label',
+            'author_ip',
             'content',
             'likes_count',
             'is_liked',
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['id', 'post', 'user', 'username', 'display_name', 'account_label', 'likes_count', 'is_liked', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'post', 'user', 'display_name', 'author_ip', 'likes_count', 'is_liked', 'created_at', 'updated_at']
 
-    def get_username(self, obj):
-        return obj.user.username
+    def validate_guest_nickname(self, value):
+        nickname = value.strip()
+        if not nickname:
+            raise serializers.ValidationError('별명을 입력해주세요.')
+        return nickname[:80]
 
     def get_display_name(self, obj):
-        return get_user_display_name(obj.user)
-
-    def get_account_label(self, obj):
-        return get_user_account_label(obj.user)
+        if obj.guest_nickname:
+            return obj.guest_nickname
+        if obj.user:
+            return get_user_display_name(obj.user)
+        return '익명'
 
     def get_likes_count(self, obj):
         return obj.likes_count

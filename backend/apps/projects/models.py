@@ -104,7 +104,9 @@ class PostLike(models.Model):
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='comments')
+    guest_nickname = models.CharField(max_length=80)
+    author_ip = models.GenericIPAddressField(null=True, blank=True)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -117,7 +119,7 @@ class Comment(models.Model):
         return self.likes.count()
 
     def __str__(self):
-        return f'{self.user.username} - {self.post.title}'
+        return f'{self.guest_nickname} - {self.post.title}'
 
 
 class CommentLike(models.Model):

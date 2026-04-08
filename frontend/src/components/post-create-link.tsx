@@ -16,7 +16,7 @@ export function PostCreateLink({ canWrite: initialCanWrite = false }: Props) {
 
   useEffect(() => {
     api.me()
-      .then((me) => setCanWrite(!!me.is_authenticated))
+      .then((me) => setCanWrite(!!me.is_staff))
       .catch(() => setCanWrite(false));
   }, []);
 

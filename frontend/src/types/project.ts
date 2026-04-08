@@ -53,10 +53,10 @@ export type UserPreview = {
 export type CommentItem = {
   id: number;
   post: number;
-  user: number;
-  username: string;
+  user: number | null;
+  nickname: string;
   display_name: string;
-  account_label: string;
+  author_ip?: string | null;
   content: string;
   likes_count: number;
   is_liked: boolean;

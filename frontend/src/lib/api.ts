@@ -140,10 +140,10 @@ export const api = {
       method: 'POST',
     }),
   getComments: (postId: number) => apiFetch<any[]>(`/api/posts/${postId}/comments/`),
-  createComment: (postId: number, content: string) =>
+  createComment: (postId: number, nickname: string, content: string) =>
     apiFetch<any>(`/api/posts/${postId}/comments/`, {
       method: 'POST',
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ nickname, content }),
     }),
   updateComment: (commentId: number, content: string) =>
     apiFetch<any>(`/api/comments/${commentId}/`, {

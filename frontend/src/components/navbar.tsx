@@ -46,16 +46,6 @@ export function Navbar() {
             Posts
           </Link>
 
-          {isAuthed ? (
-            <Link href="/account" className={baseLinkClass}>
-              My Page
-            </Link>
-          ) : (
-            <Link href="/signup" className={baseLinkClass}>
-              Sign up
-            </Link>
-          )}
-
           {isAuthed && isStaff && (
             <Link href="/admin" className={baseLinkClass}>
               Admin
@@ -66,11 +56,7 @@ export function Navbar() {
             <button onClick={onLogout} className={baseLinkClass}>
               Logout
             </button>
-          ) : (
-            <Link href="/login" className={baseLinkClass}>
-              Login
-            </Link>
-          )}
+          ) : null}
         </div>
       </nav>
     </header>

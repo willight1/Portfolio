@@ -14,7 +14,7 @@ export default function NewPostPage() {
   useEffect(() => {
     api.me()
       .then((me) => {
-        if (!me.is_authenticated) {
+        if (!me.is_authenticated || !me.is_staff) {
           window.location.href = '/login';
           return;
         }

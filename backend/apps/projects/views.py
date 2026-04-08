@@ -12,6 +12,13 @@ from .permissions import IsAdminReadLoginRetrieve, IsAuthorOrStaffOrReadOnly
 from .serializers import CommentSerializer, PostSerializer, ProjectSerializer
 
 
+def get_client_ip(request):
+    forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    if forwarded_for:
+        return forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -32,6 +39,13 @@ class PostViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthorOrStaffOrReadOnly]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     lookup_field = 'slug'
+
+    def get_permissions(self):
+        if self.action == 'comments':
+            return [AllowAny()]
+        if self.action == 'toggle_like':
+            return [IsAuthenticated()]
+        return [permission() for permission in self.permission_classes]
 
     def _visible_queryset(self):
         queryset = self.queryset
@@ -71,12 +85,13 @@ class PostViewSet(viewsets.ModelViewSet):
             serializer = CommentSerializer(queryset, many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        if not request.user.is_authenticated:
-            return Response({'detail': '로그인이 필요합니다.'}, status=status.HTTP_401_UNAUTHORIZED)
-
         serializer = CommentSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        serializer.save(post=post, user=request.user)
+        serializer.save(
+            post=post,
+            user=request.user if request.user.is_authenticated else None,
+            author_ip=get_client_ip(request),
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def by_author(self, request, username=None):

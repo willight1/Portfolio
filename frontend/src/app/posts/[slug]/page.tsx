@@ -2,7 +2,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { FollowButton } from '@/components/follow-button';
 import { LikeButton } from '@/components/like-button';
 import { PostComments } from '@/components/post-comments';
 import { PostOwnerActions } from '@/components/post-owner-actions';
@@ -54,12 +53,9 @@ export default async function PostDetailPage({ params }: Props) {
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               작성자:{' '}
               {post.created_by_username ? (
-                <span className="inline-flex items-center gap-2">
-                  <Link href={`/users/${post.created_by_username}/posts`} className="underline-offset-2 hover:underline">
-                    {post.created_by_display_name || post.created_by_username}
-                  </Link>
-                  <FollowButton username={post.created_by_username} />
-                </span>
+                <Link href={`/users/${post.created_by_username}/posts`} className="underline-offset-2 hover:underline">
+                  {post.created_by_display_name || post.created_by_username}
+                </Link>
               ) : (
                 '관리자'
               )}

@@ -59,8 +59,8 @@ class PostLikeAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'post', 'user', 'likes_count', 'created_at')
-    search_fields = ('post__title', 'user__username', 'content')
+    list_display = ('id', 'post', 'guest_nickname', 'user', 'author_ip', 'likes_count', 'created_at')
+    search_fields = ('post__title', 'guest_nickname', 'user__username', 'content', 'author_ip')
     list_filter = ('created_at',)
 
 
