@@ -26,6 +26,18 @@ async function serverFetchPublic<T>(path: string, revalidate = DEFAULT_PUBLIC_RE
   return (await response.json()) as T;
 }
 
+async function serverFetchFresh<T>(path: string): Promise<T> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+
+  return (await response.json()) as T;
+}
+
 async function serverFetchAuth<T>(path: string): Promise<T> {
   const cookieStore = await cookies();
   const cookieHeader = buildCookieHeader(cookieStore);
@@ -45,10 +57,10 @@ async function serverFetchAuth<T>(path: string): Promise<T> {
 export const serverApi = {
   getProjects: () => serverFetchPublic<Project[]>('/api/projects/'),
   getProjectBySlug: (slug: string) => serverFetchPublic<Project>(`/api/projects/${slug}/`),
-  getPosts: () => serverFetchPublic<Post[]>('/api/posts/'),
-  getPostsByAuthor: (username: string) => serverFetchPublic<Post[]>(`/api/posts/author/${username}/`),
+  getPosts: () => serverFetchFresh<Post[]>('/api/posts/'),
+  getPostsByAuthor: (username: string) => serverFetchFresh<Post[]>(`/api/posts/author/${username}/`),
   getUser: (username: string) => serverFetchPublic<UserPreview>(`/api/auth/users/${username}/`),
-  getPostBySlug: (slug: string) => serverFetchPublic<Post>(`/api/posts/${slug}/`),
+  getPostBySlug: (slug: string) => serverFetchFresh<Post>(`/api/posts/${slug}/`),
   getComments: (postId: number) => serverFetchPublic<CommentItem[]>(`/api/posts/${postId}/comments/`, COMMENTS_REVALIDATE),
   getMe: () => serverFetchAuth<AuthMe>('/api/auth/me/'),
   getFollowing: () => serverFetchAuth<UserPreview[]>('/api/auth/following/'),
