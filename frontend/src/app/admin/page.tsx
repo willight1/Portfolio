@@ -165,7 +165,7 @@ export default function AdminPage() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{note.title}</p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">@{note.username}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{note.account_label || note.username}</p>
                   </div>
                   <span className="rounded-full border border-zinc-300 px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
                     {note.status}

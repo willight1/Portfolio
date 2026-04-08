@@ -4,7 +4,7 @@ import { FormEvent, useState } from 'react';
 import { api } from '@/lib/api';
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,10 +16,10 @@ export default function LoginPage() {
 
     try {
       await api.ensureCsrf();
-      const me = await api.login(username, password);
+      const me = await api.login(identifier, password);
       window.location.href = me.is_staff ? '/admin' : '/';
     } catch {
-      setError('아이디 또는 비밀번호를 확인하세요.');
+      setError('계정, 별명 또는 비밀번호를 확인하세요.');
     } finally {
       setLoading(false);
     }
@@ -42,9 +42,9 @@ export default function LoginPage() {
 
         <form onSubmit={onSubmit} className="space-y-4">
           <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="계정 또는 별명"
             required
             className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-zinc-800"
           />

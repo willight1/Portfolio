@@ -20,6 +20,5 @@ urlpatterns = [
     path('api/auth/', include('apps.accounts.urls')),
 ]
 
-# 운영에서도 업로드 이미지를 바로 서빙할 수 있게 media URL을 매핑
-# (장기적으로는 S3 같은 외부 스토리지 사용 권장)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if not settings.USE_S3:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

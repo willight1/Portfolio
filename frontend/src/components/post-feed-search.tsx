@@ -17,7 +17,7 @@ type SortMode = 'latest' | 'likes' | 'popular';
 const searchOptions: Array<{ value: SearchMode; label: string; placeholder: string }> = [
   { value: 'title', label: '제목', placeholder: '제목으로 찾기' },
   { value: 'title_content', label: '제목+내용', placeholder: '제목이나 내용으로 찾기' },
-  { value: 'author', label: '작성자', placeholder: '작성자 아이디로 찾기' },
+  { value: 'author', label: '작성자', placeholder: '별명, 계정으로 찾기' },
 ];
 
 const sortOptions: Array<{ value: SortMode; label: string }> = [
@@ -53,7 +53,7 @@ export function PostFeedSearch({ posts }: Props) {
 
         const title = post.title.toLocaleLowerCase();
         const content = post.content.toLocaleLowerCase();
-        const author = (post.created_by_username ?? '').toLocaleLowerCase();
+        const author = `${post.created_by_username ?? ''} ${post.created_by_display_name ?? ''} ${post.created_by_account_label ?? ''}`.toLocaleLowerCase();
 
         if (searchMode === 'author') {
           return author.includes(normalizedKeyword);

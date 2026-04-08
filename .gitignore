@@ -1,5 +1,3 @@
-# 1) .gitignore 생성/갱신
-cat > .gitignore << 'EOF'
 # Python
 backend/.venv/
 **/__pycache__/
@@ -10,9 +8,11 @@ backend/media/
 # Node
 frontend/node_modules/
 frontend/.next/
+frontend/tsconfig.tsbuildinfo
 
 # Env
 .env
 *.env
+!.env.example
 backend/.env
 frontend/.env.local

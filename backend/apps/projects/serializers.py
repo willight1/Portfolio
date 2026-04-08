@@ -1,6 +1,8 @@
 from urllib.parse import quote, urlsplit, urlunsplit
 
 from rest_framework import serializers
+
+from apps.accounts.utils import get_user_account_label, get_user_display_name
 from .models import Comment, CommentLike, Post, PostLike, Project
 
 
@@ -53,6 +55,8 @@ class PostSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField(read_only=True)
     is_liked = serializers.SerializerMethodField(read_only=True)
     created_by_username = serializers.SerializerMethodField(read_only=True)
+    created_by_display_name = serializers.SerializerMethodField(read_only=True)
+    created_by_account_label = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Post
@@ -72,6 +76,8 @@ class PostSerializer(serializers.ModelSerializer):
             'is_liked',
             'created_by',
             'created_by_username',
+            'created_by_display_name',
+            'created_by_account_label',
             'created_at',
             'updated_at',
         ]
@@ -98,9 +104,17 @@ class PostSerializer(serializers.ModelSerializer):
     def get_created_by_username(self, obj):
         return obj.created_by.username if obj.created_by else None
 
+    def get_created_by_display_name(self, obj):
+        return get_user_display_name(obj.created_by) if obj.created_by else None
+
+    def get_created_by_account_label(self, obj):
+        return get_user_account_label(obj.created_by) if obj.created_by else None
+
 
 class CommentSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField(read_only=True)
+    display_name = serializers.SerializerMethodField(read_only=True)
+    account_label = serializers.SerializerMethodField(read_only=True)
     likes_count = serializers.SerializerMethodField(read_only=True)
     is_liked = serializers.SerializerMethodField(read_only=True)
 
@@ -111,16 +125,24 @@ class CommentSerializer(serializers.ModelSerializer):
             'post',
             'user',
             'username',
+            'display_name',
+            'account_label',
             'content',
             'likes_count',
             'is_liked',
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['id', 'post', 'user', 'username', 'likes_count', 'is_liked', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'post', 'user', 'username', 'display_name', 'account_label', 'likes_count', 'is_liked', 'created_at', 'updated_at']
 
     def get_username(self, obj):
         return obj.user.username
+
+    def get_display_name(self, obj):
+        return get_user_display_name(obj.user)
+
+    def get_account_label(self, obj):
+        return get_user_account_label(obj.user)
 
     def get_likes_count(self, obj):
         return obj.likes_count

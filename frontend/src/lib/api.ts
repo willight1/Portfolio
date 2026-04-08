@@ -56,21 +56,27 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
 
 export const api = {
   ensureCsrf: () => apiFetch<{ detail: string }>('/api/auth/csrf/'),
-  register: (username: string, email: string, password: string, passwordConfirm: string) =>
+  register: (nickname: string, name: string, password: string, passwordConfirm: string) =>
     apiFetch<AuthMe>('/api/auth/register/', {
       method: 'POST',
-      body: JSON.stringify({ username, email, password, password_confirm: passwordConfirm }),
+      body: JSON.stringify({ nickname, name, password, password_confirm: passwordConfirm }),
     }),
-  login: (username: string, password: string) =>
+  login: (identifier: string, password: string) =>
     apiFetch<AuthMe>('/api/auth/login/', {
       method: 'POST',
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ identifier, password }),
     }),
   logout: () =>
     apiFetch<{ detail: string }>('/api/auth/logout/', {
       method: 'POST',
     }),
   me: () => apiFetch<AuthMe>('/api/auth/me/'),
+  getUser: (username: string) => apiFetch<UserPreview>(`/api/auth/users/${username}/`),
+  updateProfile: (nickname: string, name: string) =>
+    apiFetch<AuthMe>('/api/auth/profile/', {
+      method: 'PATCH',
+      body: JSON.stringify({ nickname, name }),
+    }),
   changePassword: (currentPassword: string, newPassword: string) =>
     apiFetch<{ detail: string }>('/api/auth/change-password/', {
       method: 'POST',

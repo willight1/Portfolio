@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -9,7 +10,22 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Follow, OperatorNote
-from .serializers import OperatorNoteSerializer, RegisterSerializer, UserPreviewSerializer
+from .serializers import OperatorNoteSerializer, ProfileSerializer, RegisterSerializer, UserPreviewSerializer
+from .utils import get_user_account_label, get_user_display_name, get_user_nickname, get_user_real_name
+
+
+def serialize_auth_user(user):
+    return {
+        'id': user.id,
+        'username': user.username,
+        'nickname': get_user_nickname(user),
+        'name': get_user_real_name(user),
+        'display_name': get_user_display_name(user),
+        'account_label': get_user_account_label(user),
+        'email': user.email,
+        'is_staff': user.is_staff,
+        'is_authenticated': True,
+    }
 
 
 class RegisterAPIView(APIView):
@@ -22,40 +38,29 @@ class RegisterAPIView(APIView):
 
         login(request, user)
 
-        return Response(
-            {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'is_staff': user.is_staff,
-                'is_authenticated': True,
-            },
-            status=status.HTTP_201_CREATED,
-        )
+        return Response(serialize_auth_user(user), status=status.HTTP_201_CREATED)
 
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        username = request.data.get('username', '')
+        identifier = (request.data.get('username') or request.data.get('identifier') or '').strip()
         password = request.data.get('password', '')
 
-        user = authenticate(request, username=username, password=password)
+        account = identifier
+        matched_users = list(User.objects.filter(Q(username=identifier) | Q(last_name=identifier)).only('username')[:2])
+        if len(matched_users) > 1:
+            return Response({'detail': '동일한 별명이 여러 계정에 연결되어 로그인할 수 없습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        if matched_users:
+            account = matched_users[0].username
+
+        user = authenticate(request, username=account, password=password)
         if user is None:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
         login(request, user)
-        return Response(
-            {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'is_staff': user.is_staff,
-                'is_authenticated': True,
-            },
-            status=status.HTTP_200_OK,
-        )
+        return Response(serialize_auth_user(user), status=status.HTTP_200_OK)
 
 
 class LogoutAPIView(APIView):
@@ -76,13 +81,34 @@ class MeAPIView(APIView):
 
         return Response(
             {
-                'id': request.user.id,
-                'username': request.user.username,
-                'email': request.user.email,
-                'is_staff': request.user.is_staff,
-                'is_authenticated': True,
+                **serialize_auth_user(request.user),
                 'followers_count': followers_count,
                 'following_count': following_count,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class PublicUserAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, username):
+        user = get_object_or_404(User, username=username)
+        serializer = UserPreviewSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        serializer = ProfileSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {
+                **serialize_auth_user(request.user),
+                'detail': '계정 정보가 수정되었습니다.',
             },
             status=status.HTTP_200_OK,
         )

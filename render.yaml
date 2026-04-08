@@ -26,6 +26,14 @@ services:
         value: "True"
       - key: SECURE_SSL_REDIRECT
         value: "True"
+      - key: USE_S3
+        value: "True"
+      - key: SUPABASE_S3_ACCESS_KEY_ID
+        sync: false
+      - key: SUPABASE_S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: SUPABASE_S3_BUCKET_NAME
+        value: portfolio-media
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: DATABASE_URL

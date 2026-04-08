@@ -112,8 +112,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
-MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT', str(BASE_DIR / 'media')))
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 STORAGES = {
     'default': {
@@ -128,32 +128,35 @@ if WHITENOISE_AVAILABLE:
     STORAGES['staticfiles']['BACKEND'] = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 if USE_S3 and STORAGES_AVAILABLE:
-    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID', '')
-    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY', '')
-    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', '')
-    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'ap-northeast-2')
+    AWS_ACCESS_KEY_ID = os.getenv('SUPABASE_S3_ACCESS_KEY_ID', '')
+    AWS_SECRET_ACCESS_KEY = os.getenv('SUPABASE_S3_SECRET_ACCESS_KEY', '')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('SUPABASE_S3_BUCKET_NAME', 'portfolio-media')
+    AWS_S3_REGION_NAME = 'ap-south-1'
+    AWS_S3_ENDPOINT_URL = 'https://csiwpekpqakitvqdqaxw.supabase.co/storage/v1/s3'
     AWS_S3_SIGNATURE_VERSION = 's3v4'
+    AWS_S3_FILE_OVERWRITE = False
     AWS_QUERYSTRING_AUTH = False
-    AWS_DEFAULT_ACL = None
-
-    AWS_S3_CUSTOM_DOMAIN = os.getenv(
-        'AWS_S3_CUSTOM_DOMAIN',
-        f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com' if AWS_STORAGE_BUCKET_NAME else '',
-    )
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 
     STORAGES['default'] = {
-        'BACKEND': 'storages.backends.s3.S3Storage',
+        'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage',
         'OPTIONS': {
+            'access_key': AWS_ACCESS_KEY_ID,
+            'secret_key': AWS_SECRET_ACCESS_KEY,
             'bucket_name': AWS_STORAGE_BUCKET_NAME,
             'region_name': AWS_S3_REGION_NAME,
+            'endpoint_url': AWS_S3_ENDPOINT_URL,
             'default_acl': AWS_DEFAULT_ACL,
+            'file_overwrite': AWS_S3_FILE_OVERWRITE,
             'querystring_auth': AWS_QUERYSTRING_AUTH,
-            'custom_domain': AWS_S3_CUSTOM_DOMAIN or None,
+            'object_parameters': AWS_S3_OBJECT_PARAMETERS,
         },
     }
-
-    if AWS_S3_CUSTOM_DOMAIN:
-        MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+    MEDIA_URL = (
+        f'https://csiwpekpqakitvqdqaxw.supabase.co/storage/v1/object/public/'
+        f'{AWS_STORAGE_BUCKET_NAME}/'
+    )
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

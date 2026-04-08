@@ -11,6 +11,8 @@ from .views import (
     LogoutAPIView,
     MeAPIView,
     OperatorNoteListCreateAPIView,
+    PublicUserAPIView,
+    ProfileAPIView,
     RegisterAPIView,
     WithdrawAPIView,
 )
@@ -21,6 +23,8 @@ urlpatterns = [
     path('login/', LoginAPIView.as_view(), name='api-login'),
     path('logout/', LogoutAPIView.as_view(), name='api-logout'),
     path('me/', MeAPIView.as_view(), name='api-me'),
+    path('users/<str:username>/', PublicUserAPIView.as_view(), name='api-public-user'),
+    path('profile/', ProfileAPIView.as_view(), name='api-profile'),
     path('change-password/', ChangePasswordAPIView.as_view(), name='api-change-password'),
     path('withdraw/', WithdrawAPIView.as_view(), name='api-withdraw'),
 

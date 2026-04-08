@@ -4,8 +4,8 @@ import { FormEvent, useState } from 'react';
 import { api } from '@/lib/api';
 
 export default function SignupPage() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [error, setError] = useState('');
@@ -18,7 +18,7 @@ export default function SignupPage() {
 
     try {
       await api.ensureCsrf();
-      await api.register(username, email, password, passwordConfirm);
+      await api.register(nickname, name, password, passwordConfirm);
       window.location.href = '/';
     } catch {
       setError('회원가입에 실패했습니다. 입력값을 확인해주세요.');
@@ -38,8 +38,8 @@ export default function SignupPage() {
         {error && <p className="mb-4 rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">{error}</p>}
 
         <form onSubmit={onSubmit} className="space-y-4">
-          <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" required className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-zinc-800" />
-          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" type="email" required className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-zinc-800" />
+          <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="별명" required className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-zinc-800" />
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="본명" required className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-zinc-800" />
           <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (8자 이상)" type="password" required className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-zinc-800" />
           <input value={passwordConfirm} onChange={(e) => setPasswordConfirm(e.target.value)} placeholder="Password Confirm" type="password" required className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-zinc-800" />
 

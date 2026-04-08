@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { api } from '@/lib/api';
+import { userLabel } from '@/lib/user-label';
 import { UserPreview } from '@/types/project';
 
 export default function FollowersPage() {
@@ -39,7 +40,10 @@ export default function FollowersPage() {
         <div className="space-y-2">
           {users.map((user) => (
             <Link key={user.id} href={`/users/${user.username}/posts`} className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3 transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-900/80">
-              <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">@{user.username}</span>
+              <div>
+                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{userLabel(user.account_label, user.username)}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">{user.name || '이름 미입력'}</p>
+              </div>
               <span className="text-xs text-zinc-500 dark:text-zinc-400">following {user.following_count}</span>
             </Link>
           ))}

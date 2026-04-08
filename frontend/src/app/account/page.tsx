@@ -7,7 +7,9 @@ import { OperatorNote } from '@/types/project';
 
 export default function AccountPage() {
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [name, setName] = useState('');
+  const [accountLabel, setAccountLabel] = useState('');
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [notes, setNotes] = useState<OperatorNote[]>([]);
@@ -34,11 +36,29 @@ export default function AccountPage() {
           return;
         }
         setUsername(me.username || '');
-        setEmail(me.email || '');
+        setNickname(me.nickname || '');
+        setName(me.name || '');
+        setAccountLabel(me.account_label || me.username || '');
         void loadNotes();
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const onUpdateProfile = async (e: FormEvent) => {
+    e.preventDefault();
+    setMessage('');
+
+    try {
+      await api.ensureCsrf();
+      const result = await api.updateProfile(nickname.trim(), name.trim());
+      setNickname(result.nickname || '');
+      setName(result.name || '');
+      setAccountLabel(result.account_label || result.username || '');
+      setMessage(result.detail || '계정 정보가 수정되었습니다.');
+    } catch {
+      setMessage('계정 정보 수정에 실패했습니다.');
+    }
+  };
 
   const onChangePassword = async (e: FormEvent) => {
     e.preventDefault();
@@ -93,11 +113,33 @@ export default function AccountPage() {
     <section className="mx-auto max-w-2xl space-y-6">
       <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
         <h1 className="text-2xl font-semibold tracking-tight">내 계정</h1>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">username: {username}</p>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">email: {email || '-'}</p>
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">표시 이름: {accountLabel || username}</p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">본명: {name || '-'}</p>
       </div>
 
       {message && <p className="rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">{message}</p>}
+
+      <form onSubmit={onUpdateProfile} className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+        <h2 className="text-lg font-semibold">계정 정보 수정</h2>
+        <input
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          placeholder="별명"
+          required
+          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+        />
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="본명"
+          required
+          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+        />
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">현재 계정 표기: {accountLabel || username}</p>
+        <button className="rounded-xl border border-zinc-900 bg-zinc-900 px-4 py-2 text-sm font-semibold text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900">
+          저장하기
+        </button>
+      </form>
 
       <form onSubmit={onSubmitNote} className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
         <h2 className="text-lg font-semibold">운영자에게 쪽지 남기기</h2>

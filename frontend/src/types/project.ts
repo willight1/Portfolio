@@ -31,6 +31,8 @@ export type Post = {
   is_liked: boolean;
   created_by: number | null;
   created_by_username: string | null;
+  created_by_display_name: string | null;
+  created_by_account_label: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -39,6 +41,10 @@ export type UserPreview = {
   id: number;
   username: string;
   email: string;
+  nickname: string;
+  name: string;
+  account_label: string;
+  display_name: string;
   followers_count: number;
   following_count: number;
 };
@@ -48,6 +54,8 @@ export type CommentItem = {
   post: number;
   user: number;
   username: string;
+  display_name: string;
+  account_label: string;
   content: string;
   likes_count: number;
   is_liked: boolean;
@@ -58,17 +66,23 @@ export type CommentItem = {
 export type AuthMe = {
   id?: number;
   username?: string;
+  nickname?: string;
+  name?: string;
+  display_name?: string;
+  account_label?: string;
   email?: string;
   is_staff?: boolean;
   is_authenticated: boolean;
   followers_count?: number;
   following_count?: number;
+  detail?: string;
 };
 
 export type OperatorNote = {
   id: number;
   user: number;
   username: string;
+  account_label: string;
   title: string;
   content: string;
   status: string;

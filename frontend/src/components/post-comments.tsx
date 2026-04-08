@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { api } from '@/lib/api';
+import { userLabel } from '@/lib/user-label';
 import { CommentItem } from '@/types/project';
 
 type Props = {
@@ -121,7 +122,7 @@ export function PostComments({ postId, initialComments = [], initialMeId = null 
             return (
               <div key={comment.id} className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-950">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">@{comment.username}</span>
+                  <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">{userLabel(comment.account_label, comment.username)}</span>
                   <div className="flex items-center gap-2">
                     <button onClick={() => onLike(comment.id)} className="text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
                       {comment.is_liked ? '♥' : '♡'} {comment.likes_count}

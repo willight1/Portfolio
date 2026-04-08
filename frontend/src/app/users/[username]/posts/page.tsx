@@ -7,6 +7,8 @@ import { serverApi } from '@/lib/server-api';
 export default async function UserPostsPage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
   const posts = await serverApi.getPostsByAuthor(username);
+  const user = await serverApi.getUser(username).catch(() => null);
+  const authorLabel = posts[0]?.created_by_account_label || posts[0]?.created_by_display_name || user?.account_label || username;
 
   return (
     <section className="space-y-8">
@@ -17,7 +19,7 @@ export default async function UserPostsPage({ params }: { params: Promise<{ user
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">Author Posts</p>
         <div className="flex items-center gap-2">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">@{username}님의 게시글</h1>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{authorLabel}님의 게시글</h1>
           <FollowButton username={username} />
         </div>
       </div>

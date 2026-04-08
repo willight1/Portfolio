@@ -56,7 +56,7 @@ export default async function PostDetailPage({ params }: Props) {
               {post.created_by_username ? (
                 <span className="inline-flex items-center gap-2">
                   <Link href={`/users/${post.created_by_username}/posts`} className="underline-offset-2 hover:underline">
-                    @{post.created_by_username}
+                    {post.created_by_account_label || post.created_by_display_name || post.created_by_username}
                   </Link>
                   <FollowButton username={post.created_by_username} />
                 </span>

@@ -47,6 +47,7 @@ export const serverApi = {
   getProjectBySlug: (slug: string) => serverFetchPublic<Project>(`/api/projects/${slug}/`),
   getPosts: () => serverFetchPublic<Post[]>('/api/posts/'),
   getPostsByAuthor: (username: string) => serverFetchPublic<Post[]>(`/api/posts/author/${username}/`),
+  getUser: (username: string) => serverFetchPublic<UserPreview>(`/api/auth/users/${username}/`),
   getPostBySlug: (slug: string) => serverFetchPublic<Post>(`/api/posts/${slug}/`),
   getComments: (postId: number) => serverFetchPublic<CommentItem[]>(`/api/posts/${postId}/comments/`, COMMENTS_REVALIDATE),
   getMe: () => serverFetchAuth<AuthMe>('/api/auth/me/'),
