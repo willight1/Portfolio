@@ -52,7 +52,10 @@ export function PostCard({ post }: Props) {
                 </span>
               ))}
             </div>
-            <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">조회수 {post.view_count} · 좋아요 {post.likes_count}</span>
+            <span className="inline-flex items-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <span aria-label={`조회수 ${post.view_count}`}>👁 {post.view_count}</span>
+              <span aria-label={`좋아요 ${post.likes_count}`}>♥ {post.likes_count}</span>
+            </span>
           </div>
         </div>
       </Link>
