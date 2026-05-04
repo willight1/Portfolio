@@ -4,6 +4,25 @@
 - Backend: Render (Django + Postgres + Supabase Storage)
 - Frontend: Vercel (Next.js)
 
+---
+
+## 화면 미리보기
+
+### 홈 (게시글 피드)
+![홈 화면](docs/screenshots/home.png)
+
+### 게시글 목록
+![게시글 목록](docs/screenshots/posts.png)
+
+### 로그인
+![로그인](docs/screenshots/login.png)
+
+### 회원가입
+![회원가입](docs/screenshots/signup.png)
+
+### 관리자 대시보드
+![관리자 대시보드](docs/screenshots/admin.png)
+
 ## 1) 로컬 실행
 
 ### Backend
